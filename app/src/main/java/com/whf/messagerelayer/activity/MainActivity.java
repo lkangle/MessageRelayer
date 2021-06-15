@@ -7,85 +7,51 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.whf.messagerelayer.R;
 import com.whf.messagerelayer.utils.NativeDataManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private RelativeLayout mSmsLayout, mEmailLayout, mRuleLayout;
-    private NativeDataManager mNativeDataManager;
+    NativeDataManager manager;
+    TextView target;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        manager = new NativeDataManager(this);
+        target = (TextView) findViewById(R.id.target_email);
 
-        mNativeDataManager = new NativeDataManager(this);
-        initView();
+        RelativeLayout mEmailLayout = (RelativeLayout) findViewById(R.id.email_relay_layout);
+        mEmailLayout.setOnClickListener(this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Boolean isReceiver = mNativeDataManager.getReceiver();
-        final MenuItem menuItem = menu.add("开关");
-        if (isReceiver) {
-            menuItem.setIcon(R.mipmap.ic_send_on);
-        } else {
-            menuItem.setIcon(R.mipmap.ic_send_off);
-        }
-
-        menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Boolean receiver = mNativeDataManager.getReceiver();
-                if(receiver){
-                    mNativeDataManager.setReceiver(false);
-                    menuItem.setIcon(R.mipmap.ic_send_off);
-                    Toast.makeText(MainActivity.this,"总闸已关闭",Toast.LENGTH_SHORT).show();
-                }else{
-                    mNativeDataManager.setReceiver(true);
-                    menuItem.setIcon(R.mipmap.ic_send_on);
-                    Toast.makeText(MainActivity.this,"总闸已开启",Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        }).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-        menu.add("关于").setIcon(R.mipmap.ic_about)
-                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        startActivity(new Intent(MainActivity.this,AboutActivity.class));
-                        return false;
-                    }
-                }).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
+        final MenuItem menuItem = menu.add("关于");
+        menuItem.setIcon(R.mipmap.ic_about)
+                .setShowAsAction(2);
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void initView() {
-        mSmsLayout = (RelativeLayout) findViewById(R.id.sms_relay_layout);
-        mEmailLayout = (RelativeLayout) findViewById(R.id.email_relay_layout);
-        mRuleLayout = (RelativeLayout) findViewById(R.id.rule_layout);
-
-        mSmsLayout.setOnClickListener(this);
-        mEmailLayout.setOnClickListener(this);
-        mRuleLayout.setOnClickListener(this);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String toAccount = manager.getEmailToAccount();
+        if (toAccount != null) {
+            target.setText(String.format("目标邮箱: \n%s", toAccount));
+        } else {
+            target.setText("目标邮箱: 请设置！");
+        }
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sms_relay_layout:
-                startActivity(new Intent(this, SmsRelayerActivity.class));
-                break;
-            case R.id.email_relay_layout:
-                startActivity(new Intent(this, EmailRelayerActivity.class));
-                break;
-            case R.id.rule_layout:
-                startActivity(new Intent(this, RuleActivity.class));
+        int id = v.getId();
+        if (id == R.id.email_relay_layout) {
+            startActivity(new Intent(this, EmailRelayerActivity.class));
         }
     }
 }

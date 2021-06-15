@@ -7,17 +7,13 @@ package com.whf.messagerelayer.confing;
 public class Constant {
 
     //Intent传值的Extra名
-    public static final String EXTRA_MESSAGE_CONTENT = "content";
-    public static final String EXTRA_MESSAGE_MOBILE = "mobile";
-    public static final String EXTRA_DATA_CHANGE = "updata";
+    public static final String EXTRA_SMS_MODEL = "sms_model";
 
     //SharedPreference的文件名
     public static final String SETTING_FILE_NAME = "settingConf";
 
 
     //转发渠道配置
-    public static final String KEY_RECEIVER = "is_receiver";
-    public static final String KEY_RELAY_SMS = "is_sms_relay";
     public static final String KEY_RELAY_EMAIL = "is_email_relay";
 
 
@@ -51,13 +47,4 @@ public class Constant {
     public static final String DB_KEY_ID = "id";
     public static final String DB_KEY_NAME = "name";
     public static final String DB_KEY_MOBLIE = "mobile";
-    public static final String DB_KEY_SELECTED = "selected";
-
-    //关键字的列表
-    public static final String KEY_KEYWORD_LIST = "keyword";
-
-    //前缀和后缀
-    public static final String KEY_CONTENT_PREFIX = "prefix";
-    public static final String KEY_CONTENT_SUFFIX = "suffix";
-
 }

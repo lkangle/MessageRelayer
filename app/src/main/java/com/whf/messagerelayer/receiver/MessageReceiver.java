@@ -6,49 +6,49 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import android.util.Log;
-import android.widget.Toast;
 
+import com.whf.messagerelayer.bean.SmsModel;
 import com.whf.messagerelayer.confing.Constant;
 import com.whf.messagerelayer.service.SmsService;
-import com.whf.messagerelayer.utils.FormatMobile;
-import com.whf.messagerelayer.utils.NativeDataManager;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MessageReceiver extends BroadcastReceiver {
 
-    private NativeDataManager mNativeDataManager;
-    public MessageReceiver() {
-
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
-        this.mNativeDataManager = new NativeDataManager(context);
-        if(mNativeDataManager.getReceiver()){
-            Bundle bundle = intent.getExtras();
-            if(bundle!=null){
-                Object[] pdus = (Object[]) bundle.get("pdus");
-                for(int i = 0;i<pdus.length;i++){
-                    SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdus[i]);
-                    startSmsService(context, sms);
-                }
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
+            Object[] pdus = (Object[]) bundle.get("pdus");
+
+            for (SmsModel model : parse(pdus)) {
+                startSmsService(context, model);
             }
         }
     }
 
-    private ComponentName startSmsService(Context context, SmsMessage sms) {
-        String mobile = sms.getOriginatingAddress();//发送短信的手机号码
-
-        if(FormatMobile.hasPrefix(mobile)){
-            mobile = FormatMobile.formatMobile(mobile);
+    private Collection<SmsModel> parse(Object[] pdus) {
+        Map<String, SmsModel> smsMap = new HashMap<>(2);
+        for (Object o : pdus) {
+            SmsMessage message = SmsMessage.createFromPdu((byte[]) o);
+            String address = message.getOriginatingAddress();
+            if (smsMap.containsKey(address)) {
+                SmsModel prev = smsMap.get(address);
+                prev.addContent(message.getMessageBody());
+            } else {
+                smsMap.put(address, SmsModel.fromMessage(message));
+            }
         }
-        String content = sms.getMessageBody();//短信内容
-
-        Intent serviceIntent = new Intent(context, SmsService.class);
-        serviceIntent.putExtra(Constant.EXTRA_MESSAGE_CONTENT,content);
-        serviceIntent.putExtra(Constant.EXTRA_MESSAGE_MOBILE,mobile);
-        return context.startService(serviceIntent);
+        return smsMap.values();
     }
 
+    private void startSmsService(Context context, SmsModel sms) {
+        Intent serviceIntent = new Intent(context, SmsService.class);
+        serviceIntent.putExtra(Constant.EXTRA_SMS_MODEL, sms);
 
+        context.startService(serviceIntent);
+    }
 }

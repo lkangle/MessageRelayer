@@ -1,13 +1,12 @@
 package com.whf.messagerelayer.activity;
 
-import android.app.ProgressDialog;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.whf.messagerelayer.R;
+import com.whf.messagerelayer.bean.SmsModel;
 import com.whf.messagerelayer.confing.Constant;
 import com.whf.messagerelayer.utils.EmailRelayerManager;
 import com.whf.messagerelayer.utils.NativeDataManager;
@@ -27,8 +27,8 @@ public class EmailRelayerActivity extends AppCompatActivity implements
         CompoundButton.OnCheckedChangeListener, View.OnClickListener {
 
     private Switch mEmailSwitch, mSslSwitch;
-    private RelativeLayout mLayoutAccount, mLayoutServicer, mLayoutAddress, mLayoutPort, mLayoutToAccount, mLayoutSenderName, mLayoutSubject;
-    private TextView mTextAccount, mTextServicer, mTextAddress, mTextPort, mTextToAccount, mTextSenderName, mTextSubject;
+    private RelativeLayout mLayoutAccount, mLayoutServicer, mLayoutAddress, mLayoutPort, mLayoutToAccount, mLayoutSenderName;
+    private TextView mTextAccount, mTextServicer, mTextAddress, mTextPort, mTextToAccount, mTextSenderName;
     private View mAddressLine, mPortLine;
 
     private NativeDataManager mNativeDataManager;
@@ -71,7 +71,6 @@ public class EmailRelayerActivity extends AppCompatActivity implements
         mTextAccount.setText(mNativeDataManager.getEmailAccount());
         mTextToAccount.setText(mNativeDataManager.getEmailToAccount());
         mTextSenderName.setText(mNativeDataManager.getEmailSenderName());
-        mTextSubject.setText(mNativeDataManager.getEmailSubject());
     }
 
     /**
@@ -112,7 +111,7 @@ public class EmailRelayerActivity extends AppCompatActivity implements
         mLayoutPort = (RelativeLayout) findViewById(R.id.layout_port);
         mLayoutToAccount = (RelativeLayout) findViewById(R.id.layout_to_account);
         mLayoutSenderName = (RelativeLayout) findViewById(R.id.layout_sender_name);
-        mLayoutSubject = (RelativeLayout) findViewById(R.id.layout_subject);
+//        mLayoutSubject = (RelativeLayout) findViewById(R.id.layout_subject);
 
         mTextServicer = (TextView) findViewById(R.id.text_servicer);
         mTextAccount = (TextView) findViewById(R.id.text_account);
@@ -120,7 +119,7 @@ public class EmailRelayerActivity extends AppCompatActivity implements
         mTextPort = (TextView) findViewById(R.id.text_port);
         mTextToAccount = (TextView) findViewById(R.id.text_to_account);
         mTextSenderName = (TextView) findViewById(R.id.text_sender_name);
-        mTextSubject = (TextView) findViewById(R.id.text_subject);
+//        mTextSubject = (TextView) findViewById(R.id.text_subject);
 
         mAddressLine = findViewById(R.id.line_address);
         mPortLine = findViewById(R.id.line_port);
@@ -133,7 +132,6 @@ public class EmailRelayerActivity extends AppCompatActivity implements
         mLayoutPort.setOnClickListener(this);
         mLayoutToAccount.setOnClickListener(this);
         mLayoutSenderName.setOnClickListener(this);
-        mLayoutSubject.setOnClickListener(this);
 
         mEmailSwitch.setOnCheckedChangeListener(this);
         mSslSwitch.setOnCheckedChangeListener(this);
@@ -172,13 +170,13 @@ public class EmailRelayerActivity extends AppCompatActivity implements
             case R.id.layout_sender_name:
                 showSenderNameDialog();
                 break;
-            case R.id.layout_subject:
-                showSubjectDialog();
-                break;
+//            case R.id.layout_subject:
+//                showSubjectDialog();
+//                break;
         }
     }
 
-    private void showSubjectDialog() {
+    /* private void showSubjectDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit, null, false);
         TextView textViewTitle = (TextView) view.findViewById(R.id.dialog_title);
@@ -203,13 +201,13 @@ public class EmailRelayerActivity extends AppCompatActivity implements
             }
         });
         builder.show();
-    }
+    } */
 
     private void showSenderNameDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit, null, false);
-        TextView textViewTitle = (TextView) view.findViewById(R.id.dialog_title);
-        final EditText editText = (EditText) view.findViewById(R.id.dialog_edit);
+        TextView textViewTitle = view.findViewById(R.id.dialog_title);
+        final EditText editText = view.findViewById(R.id.dialog_edit);
 
         textViewTitle.setText("请输入发送方名称");
         editText.setText(mNativeDataManager.getEmailSenderName());
@@ -415,13 +413,14 @@ public class EmailRelayerActivity extends AppCompatActivity implements
         });
 
         builder.setNeutralButton("测试", new DialogInterface.OnClickListener() {
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final AlertDialog progressDialog = progressBuilder.show();
                 new AsyncTask<Void, Void, Integer>() {
                     @Override
                     protected Integer doInBackground(Void... params) {
-                        return EmailRelayerManager.relayEmail(mNativeDataManager, "配置正确！");
+                        return EmailRelayerManager.relayEmail(mNativeDataManager, SmsModel.test());
                     }
 
                     @Override

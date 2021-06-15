@@ -8,6 +8,7 @@ public class EmailMessage {
     private String mSenderAccount;
     private String mReceiverAccount;
     private String mSenderName;
+    // 邮箱主题
     private String mSubject;
     private String mContent;
 
